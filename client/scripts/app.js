@@ -42,7 +42,7 @@ app.fetch = function() {
 };
 
 app.clearMessages = function() {
-  $('#chats').remove();
+  $('#chats').empty();
 };
 
 app.addMessage = function(messageString) {
@@ -51,5 +51,10 @@ app.addMessage = function(messageString) {
   var $divMessage = '<div class="message"><p class="message username">' + message.username + '</p><p class="message text">' + message.text + '</p></div>';
   $('#chats').append($divMessage);
 };
+
+app.addRoom = function(roomString) {
+  var $room = '<option value="' + roomString + '">' + roomString + '</option>';
+  $('#roomSelect').append($room);
+}
 
 app.addMessage('hello!');
