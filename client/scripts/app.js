@@ -1,12 +1,16 @@
 // YOUR CODE HERE:
 var app = {};
-var Message = function(username, text, roomname) {
+
+var User = function(username) {
   this.username = username;
-  this.text = text;
-  this.roomname = roomname;
+  this.friends = {};
 };
 
-app.init = function() {};
+var equalSign = window.location.search.indexOf('=');
+var username = window.location.search.slice(equalSign+1);
+
+app.init = function() {
+};
 
 app.send = function(message) {
   $.ajax({
@@ -45,16 +49,40 @@ app.clearMessages = function() {
   $('#chats').empty();
 };
 
-app.addMessage = function(messageString) {
-  var message = new Message('admin', messageString, 'room');
+app.addMessage = function(message) {
   this.send(message);
   var $divMessage = '<div class="message"><p class="message username">' + message.username + '</p><p class="message text">' + message.text + '</p></div>';
   $('#chats').append($divMessage);
 };
 
+// $(document).ready(function() {
+  $('#message').on('click', function() {
+    app.addMessage({
+      username: username,
+      text: $('#message').text(),
+      roomname: $('#roomSelect').text()
+    }
+    );
+  });
+// })
+
 app.addRoom = function(roomString) {
   var $room = '<option value="' + roomString + '">' + roomString + '</option>';
   $('#roomSelect').append($room);
-}
+};
 
-app.addMessage('hello!');
+app.addFriend = function(username) {
+  console.log(username);
+};
+
+$(document).ready(function() {
+  $('.username').on('click', function() {
+    app.addFriend($(this).text());
+  });
+});
+
+// app.addMessage({
+//   username: 'shawndrost',
+//   text: 'trololo',
+//   roomname: '4chan'
+// });
