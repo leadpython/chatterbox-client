@@ -15,8 +15,15 @@
     <div id="main">
       <h1>chatterbox</h1>
       <!-- Your HTML goes here! -->
-      <select id="roomSelect">
-      <!-- room selector -->
+      <p>
+        <select id="roomSelect"><br>
+      </p>
+      <p>
+        <form id="createRoom" class="submit">
+          <input type="text" id="roomBox">
+          <button name="submit" type="submit" id="submitRoom">Add Room</button>
+        </form>
+      </p>
       </select>
       <form id="send" class="submit">
         <input type="text" id="messageBox"><br>
@@ -26,7 +33,9 @@
         <A HREF="javascript:history.go(0)">Refresh</A>
       </p>
     </div>
-      <div id="chats"></div>
+      <div id="chats">
+      </div>
+
     <script src="scripts/app.js"></script>
   </body>
 </html>

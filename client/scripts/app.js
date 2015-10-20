@@ -1,6 +1,7 @@
 // YOUR CODE HERE:
 var app = {
-  noDupRooms: {}
+  noDupRooms: {},
+  friends: {}
 };
 
 app.init = function() {
@@ -26,8 +27,10 @@ app.send = function(message) {
 
 app.addRoomList = function(data) {
   for (var i = data.results.length-1; i>=0; i--) {
-    var room = data.results[i].roomname;
-    app.addRoom(room);
+    var room = data.results[i].roomname !== undefined ? data.results[i].roomname : data.results[i].room;
+    // if (data.results[i].message !== undefined) {
+      app.addRoom(room);
+    // }
   }
 };
 
@@ -35,11 +38,17 @@ app.addRoom = function(room) {
   if (app.noDupRooms[room] === undefined && room !== undefined) {
     $('#roomSelect').append($('<option>', {
       value: room,
-      text: room
+      text: room,
     }));
     app.noDupRooms[room] = room;
+    var $divRoom = '<div class="' + room + '"></div>';
+    $('#chats').append($divRoom);
   }
 };
+
+$('#createRoom').on('submit', function() {
+  addRoom($('#roomBox').val());
+});
 
 app.fetch = function() {
   $.ajax({
@@ -50,10 +59,7 @@ app.fetch = function() {
     success: function (data) {
       app.addRoomList(data);
       for (var i = data.results.length-1; i >=0 ; i--) {
-        var messageCheck = data.results[i].text;
-        if (messageCheck.indexOf('<') === -1 && messageCheck.indexOf('>') === -1) {
-          app.addMessage(data.results[i]);
-        }
+        app.addAllMessages(data.results[i]);
       }
     },
     error: function (data) {
@@ -67,14 +73,28 @@ app.clearMessages = function() {
   $('#chats').empty();
 };
 
-app.addMessage = function(message) {
+app.sendMessage = function(message) {
   this.send(message);
-  var $divMessage = '<div class="message"><p class="message username">' + message.username + '</p><p class="message text">' + message.text + '</p></div>';
-  $('#chats').prepend($divMessage);
+}
+
+app.addAllMessages = function(message) {
+  var messageDiv = $('<div class="message"></div>');
+  var usernameP = $('<p class="message username"></p>').text(message.username);
+  var messageP = $('<p class="message text"></p>').text(message.text);
+
+  var roomClass = message.roomname !== undefined ? message.roomname : message.room;
+  messageDiv.append(usernameP);
+  messageDiv.append(messageP);
+  $('.' + roomClass).prepend(messageDiv);
 };
 
 app.displayRoom = function(room) {
-  // TODO
+  // clear the room (without losing prior messages in room)
+  if ($('#chats').children()) {
+    $('#chats').children().hide();
+  }
+  // add room selected
+  $('#chats').find('.'+room).show();
 };
 
 $('#roomSelect').change(function() {
@@ -82,20 +102,18 @@ $('#roomSelect').change(function() {
 });
 
 app.addFriend = function(username) {
-  console.log(username);
+  app.friends[username] = username;
 };
 
-$(document).ready(function() {
-  $('.username').on('click', function() {
-    app.addFriend($(this).text());
-  });
-});
+$('.username').on('click', function() {
+  app.addFriend($(this).text());
+})
 
 var equalSign = window.location.search.indexOf('=');
 var username = window.location.search.slice(equalSign+1);
 
 app.handleSubmit = function() {
-  app.addMessage({
+  app.sendMessage({
     username: username,
     text: $('#messageBox').val(),
     roomname: $('#roomSelect').text()    
