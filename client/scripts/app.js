@@ -1,5 +1,7 @@
 // YOUR CODE HERE:
-var app = {};
+var app = {
+  rooms: {}
+};
 
 var User = function(username) {
   this.username = username;
@@ -53,23 +55,30 @@ app.addMessage = function(message) {
   this.send(message);
   var $divMessage = '<div class="message"><p class="message username">' + message.username + '</p><p class="message text">' + message.text + '</p></div>';
   $('#chats').append($divMessage);
+  app.rooms[$('#roomSelect').val()] = $('#chats');
 };
 
-// $(document).ready(function() {
-  $('#message').on('click', function() {
-    app.addMessage({
-      username: username,
-      text: $('#message').text(),
-      roomname: $('#roomSelect').text()
-    }
-    );
-  });
-// })
-
 app.addRoom = function(roomString) {
+  var $roomDOMTree = $('#chats');
+  app.rooms[roomString] = $roomDOMTree;
   var $room = '<option value="' + roomString + '">' + roomString + '</option>';
   $('#roomSelect').append($room);
 };
+
+$('#submitRoom').on('click', function() {
+  app.addRoom($('#roomBox').val());
+});
+
+app.displayRoom = function(room) {
+  // get rooms[room]
+  var $selectedRoom = app.rooms[room];
+  // replace existing room with that
+  $('#chats').replaceWith($selectedRoom);
+};
+
+$('#roomSelect').change(function() {
+  app.displayRoom($(this).val());
+});
 
 app.addFriend = function(username) {
   console.log(username);
@@ -81,8 +90,15 @@ $(document).ready(function() {
   });
 });
 
-// app.addMessage({
-//   username: 'shawndrost',
-//   text: 'trololo',
-//   roomname: '4chan'
-// });
+app.handleSubmit = function() {
+  app.addMessage({
+    username: username,
+    text: $('#messageBox').val(),
+    roomname: $('#roomSelect').text()    
+  });
+};
+
+$('#send').on('submit', function(e) {
+  e.preventDefault();
+  app.handleSubmit();
+});

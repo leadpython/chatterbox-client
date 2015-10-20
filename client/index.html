@@ -18,12 +18,13 @@
       <select id="roomSelect">
       <!-- room selector -->
       </select>
-      <!-- message text box -->
-      <!-- message send button -->
-      <form>
-        <input type="text" class="messageBox"><br>
-        <button name="submit" type="button" id="message">Submit</button>
-        <!-- <input type="submit" value="submit" id="message"> -->
+      <form id="roomAdd">
+        <input type="text" id="roomBox"><br>
+        <button name="submit" type="button" id="submitRoom">Add room</button>
+      </form>
+      <form id="send" class="submit">
+        <input type="text" id="messageBox"><br>
+        <button name="submit" type="submit" id="submitMessage">Submit</button>
       </form>
       <div id="chats"></div>
     </div>
