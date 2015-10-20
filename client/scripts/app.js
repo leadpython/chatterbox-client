@@ -63,7 +63,7 @@ app.addRoom = function(room) {
 };
 
 $('#createRoom').on('submit', function(e) {
-  app.addRoom($(this).val());
+  app.addRoom($('#roomBox').val());
   e.preventDefault();
 });
 
@@ -106,7 +106,13 @@ app.sendMessage = function(message) {
 
 app.addMessageToRoom = function(message) {
   var messageDiv = $('<div class="message"></div>');
-  var usernameP = $('<p class="message username"></p>').text(message.username);
+  
+  if (message.username in app.friends) {
+    var usernameP = $('<p class="message username"><b></b></p>').text(message.username);
+  } else {
+    var usernameP = $('<p class="message username"></p>').text(message.username);
+  }
+
   var messageP = $('<p class="message text"></p>').text(message.text);
   var timeP = $('<p class="message time"></p>').text(message.createdAt);
 
