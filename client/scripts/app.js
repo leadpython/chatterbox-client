@@ -24,16 +24,20 @@ app.send = function(message) {
   });
 };
 
-app.addRooms = function(data) {
+app.addRoomList = function(data) {
   for (var i = data.results.length-1; i>=0; i--) {
     var room = data.results[i].roomname;
-    if (app.noDupRooms[room] === undefined && room !== undefined) {
-      $('#roomSelect').append($('<option>', {
-        value: room,
-        text: room
-      }));
-      app.noDupRooms[room] = room;
-    }
+    app.addRoom(room);
+  }
+};
+
+app.addRoom = function(room) {
+  if (app.noDupRooms[room] === undefined && room !== undefined) {
+    $('#roomSelect').append($('<option>', {
+      value: room,
+      text: room
+    }));
+    app.noDupRooms[room] = room;
   }
 };
 
@@ -44,7 +48,7 @@ app.fetch = function() {
     data: {},
     contentType: 'application/json',
     success: function (data) {
-      app.addRooms(data);
+      app.addRoomList(data);
       for (var i = data.results.length-1; i >=0 ; i--) {
         var messageCheck = data.results[i].text;
         if (messageCheck.indexOf('<') === -1 && messageCheck.indexOf('>') === -1) {
@@ -65,7 +69,6 @@ app.clearMessages = function() {
 
 app.addMessage = function(message) {
   this.send(message);
-  console.log(message.createdAt, message.text);
   var $divMessage = '<div class="message"><p class="message username">' + message.username + '</p><p class="message text">' + message.text + '</p></div>';
   $('#chats').prepend($divMessage);
 };
