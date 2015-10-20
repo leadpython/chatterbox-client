@@ -38,7 +38,7 @@ app.fetch = function() {
     contentType: 'application/json',
     success: function (data) {
       console.log(data.results);
-      for (var i = 0; i < data.results.length; i++) {
+      for (var i = data.results.length-1; i >=0 ; i--) {
         var messageCheck = data.results[i].text;
         if (messageCheck.indexOf('<') === -1 && messageCheck.indexOf('>') === -1) {
           app.addMessage(data.results[i]);
@@ -58,6 +58,7 @@ app.clearMessages = function() {
 
 app.addMessage = function(message) {
   this.send(message);
+  console.log(message.createdAt, message.text);
   var $divMessage = '<div class="message"><p class="message username">' + message.username + '</p><p class="message text">' + message.text + '</p></div>';
   $('#chats').prepend($divMessage);
 };
