@@ -50,6 +50,7 @@ app.addRoomList = function(data) {
 };
 
 app.addRoom = function(room) {
+  // $('#roomBox').val('');
   var room = room.replace(/[^a-z0-9]/gi, '');
   if (app.noDupRooms[room] === undefined && room !== undefined) {
     $('#roomSelect').append($('<option>', {
@@ -61,11 +62,6 @@ app.addRoom = function(room) {
     $('#chats').append($divRoom);
   }
 };
-
-$('#createRoom').on('submit', function(e) {
-  app.addRoom($('#roomBox').val());
-  e.preventDefault();
-});
 
 app.fetch = function() {
   $.ajax({
@@ -79,11 +75,9 @@ app.fetch = function() {
         app.messages.push(data.results[i]);
       }
       app.sortByDate();
-      // app.messages.length returns 31 items
       for (var i = 0; i < app.messages.length; i++) {
         var room = app.messages[i].roomname !== undefined ? app.messages[i].roomname : app.messages[i].room;
         room = room.replace(/[^a-z0-9]/gi, '');
-        // this loop is only being called 14 times
         if (room !== '') {
           app.addMessageToRoom(app.messages[i]);
         }
@@ -105,15 +99,15 @@ app.sendMessage = function(message) {
 }
 
 app.addMessageToRoom = function(message) {
+
   var messageDiv = $('<div class="message"></div>');
   
+  var usernameP = $('<p class="message username"></p>').text(message.username);
   if (message.username in app.friends) {
-    var usernameP = $('<p class="message username"><b></b></p>').text(message.username);
+    var messageDiv = $('<p class="message text"><b></b></p>').text(message.text);
   } else {
-    var usernameP = $('<p class="message username"></p>').text(message.username);
+    var messageP = $('<p class="message text"></p>').text(message.text);
   }
-
-  var messageP = $('<p class="message text"></p>').text(message.text);
   var timeP = $('<p class="message time"></p>').text(message.createdAt);
 
   var roomClass = message.roomname !== undefined ? message.roomname : message.room;
@@ -134,18 +128,13 @@ app.displayRoom = function(room) {
   $('#chats').find('.'+room).show();
 };
 
-$('#roomSelect').change(function() {
-  app.displayRoom($(this).val());
-});
 
 app.addFriend = function(username) {
-  app.friends[username] = username;
-  $('#friends').append('<div>' + username + '</div>');
+  if (app.friends[username] === undefined) {
+    app.friends[username] = username;
+    $('#friends').append('<div>' + username + '</div>');
+  }
 };
-
-$('.username').on('click', function() {
-  app.addFriend($(this).text());
-})
 
 var equalSign = window.location.search.indexOf('=');
 var username = window.location.search.slice(equalSign+1);
@@ -164,4 +153,18 @@ app.init();
 $('#send').on('submit', function(e) {
   app.handleSubmit();
   e.preventDefault();
+});
+
+$('#roomSelect').change(function() {
+  app.displayRoom($(this).val());
+});
+
+$('#submitRoom').on('click', function(e) {
+  console.log('hi')
+  app.addRoom($('#roomBox').val());
+  e.preventDefault();
+});
+
+$('#chats').on('click', '.username', function(e) {
+  app.addFriend($(this).text());
 });
