@@ -1,7 +1,5 @@
 // YOUR CODE HERE:
-var app = {
-  rooms: {}
-};
+var app = {};
 
 var User = function(username) {
   this.username = username;
@@ -12,6 +10,7 @@ var equalSign = window.location.search.indexOf('=');
 var username = window.location.search.slice(equalSign+1);
 
 app.init = function() {
+  app.fetch();
 };
 
 app.send = function(message) {
@@ -33,12 +32,18 @@ app.send = function(message) {
 
 app.fetch = function() {
   $.ajax({
-    url: undefined,
+    url: 'https://api.parse.com/1/classes/chatterbox',
     type: 'GET',
     data: {},
     contentType: 'application/json',
     success: function (data) {
-      console.log('chatterbox: Message received');
+      console.log(data.results);
+      for (var i = 0; i < data.results.length; i++) {
+        var messageCheck = data.results[i].text;
+        if (messageCheck.indexOf('<') === -1 && messageCheck.indexOf('>') === -1) {
+          app.addMessage(data.results[i]);
+        }
+      }
     },
     error: function (data) {
       // See: https://developer.mozilla.org/en-US/docs/Web/API/console.error
@@ -54,26 +59,11 @@ app.clearMessages = function() {
 app.addMessage = function(message) {
   this.send(message);
   var $divMessage = '<div class="message"><p class="message username">' + message.username + '</p><p class="message text">' + message.text + '</p></div>';
-  $('#chats').append($divMessage);
-  app.rooms[$('#roomSelect').val()] = $('#chats');
+  $('#chats').prepend($divMessage);
 };
-
-app.addRoom = function(roomString) {
-  var $roomDOMTree = $('#chats');
-  app.rooms[roomString] = $roomDOMTree;
-  var $room = '<option value="' + roomString + '">' + roomString + '</option>';
-  $('#roomSelect').append($room);
-};
-
-$('#submitRoom').on('click', function() {
-  app.addRoom($('#roomBox').val());
-});
 
 app.displayRoom = function(room) {
-  // get rooms[room]
-  var $selectedRoom = app.rooms[room];
-  // replace existing room with that
-  $('#chats').replaceWith($selectedRoom);
+  // TODO
 };
 
 $('#roomSelect').change(function() {
@@ -96,7 +86,10 @@ app.handleSubmit = function() {
     text: $('#messageBox').val(),
     roomname: $('#roomSelect').text()    
   });
+  $('#messageBox').val('');
 };
+
+app.init();
 
 $('#send').on('submit', function(e) {
   e.preventDefault();
