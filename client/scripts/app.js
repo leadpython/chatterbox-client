@@ -82,6 +82,7 @@ app.fetch = function() {
           app.addMessageToRoom(app.messages[i]);
         }
       }
+      $('#chats').children().hide();
     },
     error: function (data) {
       // See: https://developer.mozilla.org/en-US/docs/Web/API/console.error
@@ -101,13 +102,14 @@ app.sendMessage = function(message) {
 app.addMessageToRoom = function(message) {
 
   var messageDiv = $('<div class="message"></div>');
-  
   var usernameP = $('<p class="message username"></p>').text(message.username);
+  
   if (message.username in app.friends) {
     var messageDiv = $('<p class="message text"><b></b></p>').text(message.text);
   } else {
     var messageP = $('<p class="message text"></p>').text(message.text);
   }
+
   var timeP = $('<p class="message time"></p>').text(message.createdAt);
 
   var roomClass = message.roomname !== undefined ? message.roomname : message.room;
@@ -150,7 +152,7 @@ app.handleSubmit = function() {
 
 app.init();
 
-$('#send').on('submit', function(e) {
+$('#submitMessage').on('click', function(e) {
   app.handleSubmit();
   e.preventDefault();
 });

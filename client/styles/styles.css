@@ -74,6 +74,10 @@ form input[type=text] {
     cursor: pointer;
 }
 
+.time {
+    font-style: italic;
+}
+
 .chat:hover {
     background-color: #ddd;
 }
