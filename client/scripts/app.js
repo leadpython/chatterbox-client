@@ -1,11 +1,30 @@
 // YOUR CODE HERE:
 var app = {
   noDupRooms: {},
-  friends: {}
+  friends: {},
+  messages: []
 };
 
 app.init = function() {
   app.fetch();
+};
+
+app.sortByDate = function() {
+  console.log(app.messages)
+  var recursiveBubbleSort = function(i) {
+    for (i; i < app.messages.length; i++) {
+      if (app.messages[i] > app.messages[i+1]) {
+        var tmp = app.messages[i];
+        app.messages[i] = app.messages[i+1];
+        app.messages[i+1] = tmp;
+        if (i !== 0) {
+          recursiveBubbleSort(i-1);
+        }
+      }
+    }
+  };
+  recursiveBubbleSort(0);
+  console.log(app.messages)
 };
 
 app.send = function(message) {
@@ -28,7 +47,7 @@ app.send = function(message) {
 app.addRoomList = function(data) {
   for (var i = data.results.length-1; i>=0; i--) {
     var room = data.results[i].roomname !== undefined ? data.results[i].roomname : data.results[i].room;
-    // if (data.results[i].message !== undefined) {
+    // if (room.length < 15) {
       app.addRoom(room);
     // }
   }
@@ -46,8 +65,9 @@ app.addRoom = function(room) {
   }
 };
 
-$('#createRoom').on('submit', function() {
-  addRoom($('#roomBox').val());
+$('#createRoom').on('submit', function(e) {
+  app.addRoom($(this).val());
+  e.preventDefault();
 });
 
 app.fetch = function() {
@@ -59,7 +79,11 @@ app.fetch = function() {
     success: function (data) {
       app.addRoomList(data);
       for (var i = data.results.length-1; i >=0 ; i--) {
-        app.addAllMessages(data.results[i]);
+        app.messages.push(data.results[i]);
+      }
+      app.sortByDate();
+      for (var i = 0; i < app.messages.length; i++) {
+        app.addAllMessages(app.messages[i]);
       }
     },
     error: function (data) {
@@ -81,11 +105,13 @@ app.addAllMessages = function(message) {
   var messageDiv = $('<div class="message"></div>');
   var usernameP = $('<p class="message username"></p>').text(message.username);
   var messageP = $('<p class="message text"></p>').text(message.text);
+  var timeP = $('<p class="message time"></p>').text(message.createdAt);
 
   var roomClass = message.roomname !== undefined ? message.roomname : message.room;
   messageDiv.append(usernameP);
   messageDiv.append(messageP);
-  $('.' + roomClass).prepend(messageDiv);
+  messageDiv.append(timeP);
+  $('.' + roomClass).append(messageDiv);
 };
 
 app.displayRoom = function(room) {
@@ -103,6 +129,7 @@ $('#roomSelect').change(function() {
 
 app.addFriend = function(username) {
   app.friends[username] = username;
+  $('#friends').append('<div>' + username + '</div>');
 };
 
 $('.username').on('click', function() {
@@ -116,7 +143,7 @@ app.handleSubmit = function() {
   app.sendMessage({
     username: username,
     text: $('#messageBox').val(),
-    roomname: $('#roomSelect').text()    
+    roomname: $('#roomSelect').val()    
   });
   $('#messageBox').val('');
 };
@@ -124,6 +151,6 @@ app.handleSubmit = function() {
 app.init();
 
 $('#send').on('submit', function(e) {
-  e.preventDefault();
   app.handleSubmit();
+  e.preventDefault();
 });
