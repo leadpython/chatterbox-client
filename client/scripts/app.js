@@ -1,13 +1,7 @@
 // YOUR CODE HERE:
-var app = {};
-
-var User = function(username) {
-  this.username = username;
-  this.friends = {};
+var app = {
+  noDupRooms: {}
 };
-
-var equalSign = window.location.search.indexOf('=');
-var username = window.location.search.slice(equalSign+1);
 
 app.init = function() {
   app.fetch();
@@ -30,6 +24,19 @@ app.send = function(message) {
   });
 };
 
+app.addRooms = function(data) {
+  for (var i = data.results.length-1; i>=0; i--) {
+    var room = data.results[i].roomname;
+    if (app.noDupRooms[room] === undefined && room !== undefined) {
+      $('#roomSelect').append($('<option>', {
+        value: room,
+        text: room
+      }));
+      app.noDupRooms[room] = room;
+    }
+  }
+};
+
 app.fetch = function() {
   $.ajax({
     url: 'https://api.parse.com/1/classes/chatterbox',
@@ -37,7 +44,7 @@ app.fetch = function() {
     data: {},
     contentType: 'application/json',
     success: function (data) {
-      console.log(data.results);
+      app.addRooms(data);
       for (var i = data.results.length-1; i >=0 ; i--) {
         var messageCheck = data.results[i].text;
         if (messageCheck.indexOf('<') === -1 && messageCheck.indexOf('>') === -1) {
@@ -80,6 +87,9 @@ $(document).ready(function() {
     app.addFriend($(this).text());
   });
 });
+
+var equalSign = window.location.search.indexOf('=');
+var username = window.location.search.slice(equalSign+1);
 
 app.handleSubmit = function() {
   app.addMessage({
