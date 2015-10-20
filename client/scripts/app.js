@@ -10,7 +10,6 @@ app.init = function() {
 };
 
 app.sortByDate = function() {
-  console.log(app.messages)
   var recursiveBubbleSort = function(i) {
     for (i; i < app.messages.length; i++) {
       if (app.messages[i] > app.messages[i+1]) {
@@ -24,7 +23,6 @@ app.sortByDate = function() {
     }
   };
   recursiveBubbleSort(0);
-  console.log(app.messages)
 };
 
 app.send = function(message) {
@@ -47,13 +45,12 @@ app.send = function(message) {
 app.addRoomList = function(data) {
   for (var i = data.results.length-1; i>=0; i--) {
     var room = data.results[i].roomname !== undefined ? data.results[i].roomname : data.results[i].room;
-    // if (room.length < 15) {
       app.addRoom(room);
-    // }
   }
 };
 
 app.addRoom = function(room) {
+  var room = room.replace(/[^a-z0-9]/gi, '');
   if (app.noDupRooms[room] === undefined && room !== undefined) {
     $('#roomSelect').append($('<option>', {
       value: room,
@@ -82,8 +79,14 @@ app.fetch = function() {
         app.messages.push(data.results[i]);
       }
       app.sortByDate();
+      // app.messages.length returns 31 items
       for (var i = 0; i < app.messages.length; i++) {
-        app.addAllMessages(app.messages[i]);
+        var room = app.messages[i].roomname !== undefined ? app.messages[i].roomname : app.messages[i].room;
+        room = room.replace(/[^a-z0-9]/gi, '');
+        // this loop is only being called 14 times
+        if (room !== '') {
+          app.addMessageToRoom(app.messages[i]);
+        }
       }
     },
     error: function (data) {
@@ -101,13 +104,15 @@ app.sendMessage = function(message) {
   this.send(message);
 }
 
-app.addAllMessages = function(message) {
+app.addMessageToRoom = function(message) {
   var messageDiv = $('<div class="message"></div>');
   var usernameP = $('<p class="message username"></p>').text(message.username);
   var messageP = $('<p class="message text"></p>').text(message.text);
   var timeP = $('<p class="message time"></p>').text(message.createdAt);
 
   var roomClass = message.roomname !== undefined ? message.roomname : message.room;
+  roomClass = roomClass.replace(/[^a-z0-9]/gi, '');
+  
   messageDiv.append(usernameP);
   messageDiv.append(messageP);
   messageDiv.append(timeP);
